@@ -23,8 +23,8 @@ def main():
     combat_time = 17
 
     # Assuming we hit 2 in first plane, 3 in second plane, 1 in third plane
-    rolls = 4
-    deficit = 4
+    rolls = 16
+    deficit = 12
 
     # Too many variables causes z3 to take a long time to solve
     print("SOLVING SYSTEM OF", (rolls + 1) * (deficit + 1), "VARIABLES WITH", rolls, "ROLLS AND", deficit, "DEFICITS")
