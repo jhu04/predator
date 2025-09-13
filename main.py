@@ -2,29 +2,31 @@ import time
 import z3
 import xlsxwriter
 
-probabilities = [0.85, 0.10, 0.05]
-
-# We ignore the time for the plane bosses, plane 2 respite, and plane 3 transaction domains as we assume we hit them so
-# rarely that they play a negligible role.
-reset_time = 51
-combat_time = 17
-
 
 def z3_min(a, b):
     return z3.If(a < b, a, b)
 
 
 def name(i: int, j: int) -> str:
+    """Variable name for state with i deficit and j rolls remaining."""
     return f"{i} {j}"
 
 
 def main():
-    start = time.time()
+    start = time.time()  # Too lazy to use perf_counter
+
+    probabilities = [0.85, 0.10, 0.05]
+
+    # We ignore the time for the plane bosses, plane 2 respite, and plane 3 transaction domains as we assume we hit them so
+    # rarely that they play a negligible role.
+    reset_time = 51
+    combat_time = 17
 
     # Assuming we hit 2 in first plane, 3 in second plane, 1 in third plane
-    rolls = 16
-    deficit = 12
+    rolls = 4
+    deficit = 4
 
+    # Too many variables causes z3 to take a long time to solve
     print("SOLVING SYSTEM OF", (rolls + 1) * (deficit + 1), "VARIABLES WITH", rolls, "ROLLS AND", deficit, "DEFICITS")
 
     z3.set_option(rational_to_decimal=True, precision=5)
@@ -58,9 +60,9 @@ def main():
                 solver.add(states[i][j] == reset_time + z3.Sum(
                     tuple(p * states[max(i - di, 0)][j - 1] for di, p in enumerate(probabilities))))
 
-    print(solver.check())
+    print("CHECK:", solver.check())
     model = solver.model()
-    print(model)
+    print("MODEL:", model)
 
     with xlsxwriter.Workbook(f"out/{deficit}-deficit-{rolls}-rolls.xlsx") as workbook:
         worksheet = workbook.add_worksheet()
@@ -72,7 +74,6 @@ def main():
                 worksheet.write_number(d, r, model[states[d][r]].as_fraction())
 
         init = model[states[deficit][rolls]].as_fraction()
-        print("INIT", init)
         worksheet.conditional_format(0, 0, deficit, rolls, {
             "type": "cell",
             "criteria": "=",
@@ -86,8 +87,8 @@ def main():
             "format": workbook.add_format({"bg_color": "#C6EFCE", "font_color": "#0006100"})
         })
 
-    print("ANSWER:", solver.model()[states[deficit][rolls]])
-    print("TIME TAKEN:", time.time() - start)
+    print("EXPECTED TIME TO GET ACHIEVEMENT:", model[states[deficit][rolls]])
+    print("COMPUTE TIME TAKEN:", time.time() - start)
 
 
 if __name__ == '__main__':
