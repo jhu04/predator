@@ -56,7 +56,6 @@ def main():
                 ))
             else:
                 # assume it is never optimal to reset on the first domain
-                # assume it takes 3 seconds to start a run
                 solver.add(states[i][j] == reset_time + z3.Sum(
                     tuple(p * states[max(i - di, 0)][j - 1] for di, p in enumerate(probabilities))))
 
