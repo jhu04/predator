@@ -22,7 +22,7 @@ def main():
     reset_time = 51
     combat_time = 17
 
-    # Assuming we hit 2 in first plane, 3 in second plane, 1 in third plane
+    # Assuming we hit 2 elites in first plane, 3 elites in second plane, 1 elite in third plane
     rolls = 16
     deficit = 12
 
